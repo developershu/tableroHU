@@ -1,0 +1,88 @@
+import useForm from "@/hooks/useForm";
+import { hasRoles } from "@/utils/user";
+import { Button, Flex, MultiSelect, Skeleton, Text } from "@mantine/core";
+import { modals } from "@mantine/modals";
+import axios from "axios";
+import { useEffect, useState } from "react";
+
+function ModalForm({ item }) {
+  const [requestPending, setRequestPending] = useState(true);
+  const [users, setUsers] = useState([]);
+
+  const [form, submit, updateValue] = useForm(
+    "post",
+    route("projects.user_access", item.id),
+    {
+      users: item.users_with_access
+        .filter((user) => !hasRoles(user, ["admin"]))
+        .map((i) => i.id.toString()),
+    },
+  );
+
+  const submitModal = (event) => {
+    submit(event, {
+      onSuccess: () => modals.closeAll(),
+      preserveScroll: true,
+    });
+  };
+
+  useEffect(() => {
+    axios
+      .get(route("dropdown.values", ["users"]))
+      .then(({ data }) => {
+        setUsers([...data.users]);
+      })
+      .catch(() =>
+        alert("Algo salió mal al intentar obtener los usuarios. Por favor, recarga la página e intenta de nuevo."),
+      )
+      .finally(() => setRequestPending(false));
+  }, [form.data]);
+
+  return (
+    <form onSubmit={submitModal}>
+      {requestPending ? (
+        <>
+          <Skeleton height={10} width={50} mt={8} radius="xl" />
+          <Skeleton height={25} mt={10} radius="xl" />
+        </>
+      ) : (
+        <MultiSelect
+          label="Usuarios"
+          placeholder="Selecciona los usuarios"
+          searchable
+          value={requestPending ? [] : form.data.users}
+          onChange={(values) => updateValue("users", values)}
+          data={users}
+          error={form.errors.users}
+        />
+      )}
+
+      <Flex justify="flex-end" mt="xl">
+        <Button
+          type="submit"
+          w={100}
+          disabled={requestPending}
+          loading={form.processing}
+        >
+          Guardar
+        </Button>
+      </Flex>
+    </form>
+  );
+}
+
+const UserAccessModal = (item) => {
+  modals.open({
+    title: (
+      <Text size="xl" fw={700} mb={-10}>
+        Acceso de usuarios
+      </Text>
+    ),
+    centered: true,
+    padding: "xl",
+    overlayProps: { backgroundOpacity: 0.55, blur: 3 },
+    children: <ModalForm item={item} />,
+  });
+};
+
+export default UserAccessModal;

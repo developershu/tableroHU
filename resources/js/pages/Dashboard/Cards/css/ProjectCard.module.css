@@ -1,0 +1,24 @@
+.link {
+    @mixin hover {
+        cursor: pointer;
+        color: var(--mantine-color-hospitalPrimary-6);
+    }
+}
+
+.projectCard {
+    cursor: pointer;
+
+    @mixin hover {
+        .title {
+            color: var(--mantine-color-hospitalPrimary-6);
+        }
+    }
+}
+
+.info {
+    min-width: 0;
+}
+
+.title {
+    transition: 0.3s ease color;
+}

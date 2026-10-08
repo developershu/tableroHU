@@ -1,0 +1,22 @@
+.highlight {
+    padding: 4px 15px 0 15px;
+}
+
+.task {
+    transition: 0.3s ease color, 0.3s ease background-color;
+    padding: 5px 10px 10px 15px;
+    border-radius: var(--mantine-radius-md);
+
+    @mixin hover {
+        color: light-dark(var(--mantine-color-dark-4), var(--mantine-color-white));
+        background-color: light-dark(var(--mantine-color-gray-1), var(--mantine-color-dark-6));
+    }
+}
+
+.link {
+    cursor: pointer;
+}
+
+.due {
+    text-wrap: nowrap;
+}

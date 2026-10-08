@@ -1,0 +1,38 @@
+.user {
+    display: block;
+    width: 100%;
+    padding: var(--mantine-spacing-md);
+
+    background-color: var(--mantine-color-hospitalPrimary-8);
+    color: var(--mantine-color-white);
+
+    transition: background-color 0.2s ease;
+
+    border-radius: 0;
+}
+
+.user:hover {
+    background-color: var(--mantine-color-hospitalPrimary-7);
+}
+
+.menuItem {
+    display: block;
+    width: 100%;
+    padding: var(--mantine-spacing-sm) var(--mantine-spacing-md);
+
+    color: rgb(255, 255, 255);
+
+    transition: background-color 0.2s ease;
+
+    border-radius: 0;
+}
+
+.menuItem:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    color: var(--mantine-color-white);
+}
+
+.logout:hover {
+    background-color: rgba(220, 38, 38, 0.15);
+    color: var(--mantine-color-red-4);
+}

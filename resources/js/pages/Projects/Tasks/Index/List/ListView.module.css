@@ -1,0 +1,414 @@
+.container {
+  background: var(--mantine-color-body);
+
+  border: 1px solid
+    light-dark(
+      var(--mantine-color-gray-3),
+      var(--mantine-color-dark-4)
+    );
+
+  border-radius: 12px;
+
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+/* =========================
+   FILAS
+========================= */
+
+.row {
+  display: grid;
+  width: max-content;
+  min-width: 100%;
+  grid-template-columns:
+    24px                                  /* drag handle */
+    48px                                  /* checkbox */
+    var(--col-key-width, 70px)            /* número */
+    minmax(var(--col-summary-width, 450px), var(--col-summary-width, 450px)) /* tarea */
+    var(--col-creator-width, 180px)       /* creador */
+    var(--col-assignee-width, 180px)      /* responsable */
+    var(--col-priority-width, 140px)      /* prioridad */
+    var(--col-status-width, 160px)        /* estado */
+    var(--col-due-width, 140px)           /* vencimiento */
+    50px;                                 /* acciones */
+
+  align-items: center;
+
+  min-height: 52px;
+
+border-bottom: 1px solid
+  light-dark(
+    var(--mantine-color-gray-3),
+    var(--mantine-color-dark-4)
+  );
+
+transition: background-color .15s ease;}
+
+.row:hover {
+  background: light-dark(
+    var(--mantine-color-hospitalPrimary-0),
+    rgba(61, 108, 168, 0.12)
+  );
+
+  cursor: pointer;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+
+  background:
+    light-dark(
+      var(--mantine-color-gray-0),
+      var(--mantine-color-dark-7)
+    );
+
+  min-height: 46px;
+
+  border-bottom: 1px solid
+    light-dark(
+      var(--mantine-color-gray-3),
+      var(--mantine-color-dark-4)
+    );
+}
+
+.headerText {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+
+  color:
+    light-dark(
+      var(--mantine-color-gray-6),
+      var(--mantine-color-gray-4)
+    );
+}
+
+/* =========================
+   COLUMNAS
+========================= */
+
+.checkbox,
+.key,
+.summary,
+.creator,
+.assignee,
+.priority,
+.status,
+.due,
+.actions {
+  padding: 0 14px;
+}
+
+.checkbox {
+  display: flex;
+  justify-content: center;
+}
+
+.key {
+  color:
+    light-dark(
+      var(--mantine-color-gray-6),
+      var(--mantine-color-gray-4)
+    );
+
+  font-weight: 600;
+}
+
+.summary {
+  font-weight: 500;
+
+  color:
+    light-dark(
+      #1d2939,
+      var(--mantine-color-gray-1)
+    );
+
+  overflow: hidden;
+}
+
+.summary p,
+.summary span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.creator {
+  overflow: hidden;
+}
+
+.assignee {
+  overflow: hidden;
+}
+
+.status,
+.priority,
+.due {
+  display: flex;
+  align-items: center;
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+}
+
+.summaryContent {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.summaryAction {
+  opacity: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 24px;
+  height: 24px;
+
+  border-radius: 6px;
+
+  cursor: pointer;
+
+  transition:
+    opacity .15s ease,
+    background-color .15s ease,
+    transform .15s ease;
+}
+
+.row:hover .summaryAction {
+  opacity: 1;
+}
+
+.summaryAction:hover {
+  background:
+    light-dark(
+        var(--mantine-color-gray-1),
+        rgba(255,255,255,.05)
+    );
+  transform: scale(1.08);
+}
+
+[data-mantine-color-scheme="dark"] .summaryAction:hover {
+  background: var(--mantine-color-dark-5);
+}
+
+.expandButton {
+  width: 28px;
+  height: 28px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 6px;
+
+  transition:
+    background-color .15s ease,
+    transform .15s ease;
+}
+
+.expandButtonActive {
+  cursor: pointer;
+}
+
+.expandButtonActive:hover {
+  background: light-dark(
+    var(--mantine-color-gray-1),
+    var(--mantine-color-dark-5)
+  );
+}
+
+.expandButton svg {
+  transition: transform .15s ease;
+}
+
+.expandButtonActive:hover svg {
+  transform: scale(1.1);
+}
+
+.statusTrigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  padding: 2px 6px;
+
+  border-radius: 6px;
+
+  cursor: pointer;
+
+  transition: background-color 0.15s ease;
+}
+
+.statusTrigger:hover {
+  background: light-dark(
+    var(--mantine-color-gray-1),
+    var(--mantine-color-dark-5)
+  );
+}
+
+.statusTrigger svg {
+  color: var(--mantine-color-gray-6);
+}
+
+.columnHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  width: 100%;
+  height: 100%;
+}
+/* =========================
+   DRAG & DROP
+========================= */
+
+.dragHandle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: grab;
+
+  opacity: 0;
+  transition: opacity .15s ease;
+
+  touch-action: none;
+}
+
+.row:hover .dragHandle {
+  opacity: 1;
+}
+
+.dragHandle:active {
+  cursor: grabbing;
+}
+
+.rowDragging {
+  opacity: 0.4;
+}
+
+.summary {
+  position: relative;
+}
+
+.dropZoneBefore,
+.dropZoneAfter {
+  position: absolute;
+  left: 0;
+  right: 0;
+
+  height: 10px;
+
+  z-index: 5;
+
+  border-radius: 3px;
+}
+
+.dropZoneBefore {
+  top: -5px;
+}
+
+.dropZoneAfter {
+  bottom: -5px;
+}
+
+.dropValid {
+  background: light-dark(
+    var(--mantine-color-hospitalPrimary-2, var(--mantine-color-blue-2)),
+    var(--mantine-color-blue-8)
+  );
+}
+
+.dropInvalid {
+  background: var(--mantine-color-red-2);
+  cursor: not-allowed;
+}
+
+.summaryContent.dropValid {
+  outline: 2px solid var(--mantine-color-blue-4);
+  outline-offset: -2px;
+  border-radius: 6px;
+  background: light-dark(var(--mantine-color-blue-0), var(--mantine-color-dark-5));
+}
+
+.summaryContent.dropInvalid {
+  outline: 2px solid var(--mantine-color-red-4);
+  outline-offset: -2px;
+  border-radius: 6px;
+  cursor: not-allowed;
+}
+
+.dragOverlay {
+  background:
+    light-dark(
+      white,
+      var(--mantine-color-dark-7)
+    );
+
+  border: 1px solid
+    light-dark(
+      var(--mantine-color-gray-3),
+      var(--mantine-color-dark-4)
+    );
+
+  border-radius: 8px;
+
+  box-shadow: 0 8px 20px rgba(0,0,0,.18);
+}
+
+/* =========================
+   RESIZE DE COLUMNAS
+========================= */
+
+.resizeHandle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+
+  width: 6px;
+
+  cursor: col-resize;
+
+  z-index: 10;
+
+  touch-action: none;
+}
+
+.resizeHandle::after {
+  content: '';
+
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: 2px;
+
+  width: 2px;
+
+  border-radius: 2px;
+
+  background: transparent;
+
+  transition: background-color .15s ease;
+}
+
+.resizeHandle:hover::after,
+.resizeHandleActive::after {
+  background: var(--mantine-color-hospitalPrimary-4, var(--mantine-color-blue-4));
+}

@@ -1,0 +1,90 @@
+import { stopOnIgnoreLink } from "@/utils/domEvents";
+import { getInitials } from "@/utils/user";
+import { Link } from "@inertiajs/react";
+import { Avatar, Card, Checkbox, Group, Progress, Text, Tooltip } from "@mantine/core";
+import ToggleFavorite from "./FavoriteToggle";
+import ProjectCardActions from "./ProjectCardActions";
+import classes from "./css/ProjectCard.module.css";
+
+export default function ProjectCard({ item, selectable = false, selected = false, onToggleSelect }) {
+  const completedPercent = (item.completed_tasks_count / item.all_tasks_count) * 100;
+  const overduePercent = (item.overdue_tasks_count / item.all_tasks_count) * 100;
+
+  return (
+    <Link
+      href={route("projects.tasks", item.id)}
+      className={classes.link}
+      onClick={stopOnIgnoreLink}
+    >
+      <Card withBorder padding="xl" radius="md" w={{ base: '100%', xs: '100%', sm: '100%', md: 350 }} className={classes.card}>
+        <Group justify="space-between">
+          <Group gap="xs">
+            {selectable && (
+              <Checkbox
+                checked={selected}
+                onChange={() => onToggleSelect(item.id)}
+                onClick={(e) => e.stopPropagation()}
+                data-ignore-link
+                aria-label={`Seleccionar proyecto ${item.name}`}
+              />
+            )}
+            <Text fz={23} fw={700} className={classes.title}>
+              {item.name}
+            </Text>
+          </Group>
+          <ToggleFavorite item={item} />
+        </Group>
+
+        <Text fz="sm" fw={500}>
+          {item.area?.name}
+        </Text>
+
+        {item.description?.length > 0 && (
+          <Text fz="sm" c="dimmed" mt="lg">
+            {item.description}
+          </Text>
+        )}
+
+        <Text c="dimmed" fz="sm" mt="md">
+          Avance de tareas:{" "}
+          <Text span fw={500} c="bright">
+            {item.completed_tasks_count} / {item.all_tasks_count}
+          </Text>
+        </Text>
+
+        <Progress.Root value={item.all_tasks_count} mt={10} radius="xl">
+          <Tooltip label={`Completadas: ${item.completed_tasks_count}`} withArrow>
+            <Progress.Section value={completedPercent} color="hospitalPrimary" />
+          </Tooltip>
+          <Tooltip label={`Vencidas: ${item.overdue_tasks_count}`} withArrow>
+            <Progress.Section value={overduePercent} color="red" />
+          </Tooltip>
+          <Progress.Section value={100 - (completedPercent + overduePercent)} color="gray" />
+        </Progress.Root>
+
+        <Group justify="space-between" mt="md">
+          <Avatar.Group spacing="sm">
+            {item.users_with_access.slice(0, 4).map((user) => (
+              <Tooltip key={user.id} label={user.name} openDelay={300} withArrow>
+                <Avatar
+                  src={user.avatar}
+                  radius="xl"
+                  style={{ cursor: "default" }}
+                  data-ignore-link
+                  className={classes.avatar}
+                >
+                  {getInitials(user.name)}
+                </Avatar>
+              </Tooltip>
+            ))}
+            {item.users_with_access.length - 4 > 0 && (
+              <Avatar radius="xl">+{item.users_with_access.length - 4}</Avatar>
+            )}
+          </Avatar.Group>
+
+          <ProjectCardActions item={item} />
+        </Group>
+      </Card>
+    </Link>
+  );
+}

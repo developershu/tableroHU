@@ -1,0 +1,180 @@
+.checkbox input {
+    cursor: pointer;
+}
+
+.disabledCheckbox input {
+    cursor: default;
+    pointer-events: none;
+}
+
+.user {
+    background-color: light-dark(var(--mantine-color-white), var(--mantine-color-dark-6));
+    border-radius: var(--mantine-radius-xl);
+    border: rem(1px) solid light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-6));
+    transition: 0.3s ease border, 0.3s ease color;
+    color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-white));
+
+    @mixin hover {
+        color: light-dark(var(--mantine-color-gray-9), var(--mantine-color-white));
+        border: rem(1px) solid light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
+    }
+
+    &>span {
+        cursor: pointer;
+    }
+}
+
+.priorityIndicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: rem(6px);
+    border-radius: var(--mantine-radius-md) 0 0 var(--mantine-radius-md);
+    cursor: pointer;
+    opacity: 0.5;
+    transition: 0.3s ease opacity;
+}
+
+.task {
+    transition: 0.3s ease color, 0.3s ease background-color;
+    padding: 5px 10px 5px 15px;
+    border-radius: var(--mantine-radius-md);
+    position: relative;
+
+    @mixin hover {
+        color: light-dark(var(--mantine-color-dark-4), var(--mantine-color-white));
+        background-color: light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-6));
+
+        .actions {
+            opacity: 0.5;
+        }
+
+        .dragHandle {
+            opacity: 0.2;
+        }
+
+        .user {
+            border: rem(1px) solid light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
+        }
+
+        .priorityIndicator {
+            opacity: 1;
+        }
+    }
+}
+
+.name {
+    cursor: pointer;
+}
+
+.actions {
+    opacity: 0;
+    transition: 0.3s ease opacity;
+}
+
+.itemDragging {}
+
+.dragHandle {
+    opacity: 0;
+    transition: 0.3s ease opacity;
+    margin-top: 7px;
+}
+
+/* ===========================
+   ARCHIVADOS - Filas horizontales finas
+=========================== */
+
+.archivedCard {
+    padding: 12px 18px;
+    margin-bottom: 0;
+    border-radius: 0;
+    border: none;
+    border-bottom: 1px solid light-dark(
+        var(--mantine-color-gray-2),
+        var(--mantine-color-dark-5)
+    );
+    background: transparent;
+    transition: background-color .18s ease, border-color .18s ease;
+}
+
+.archivedCard:hover {
+    background-color: light-dark(
+        var(--mantine-color-gray-0),
+        var(--mantine-color-dark-8)
+    );
+    border-color: light-dark(
+        var(--mantine-color-gray-3),
+        var(--mantine-color-dark-4)
+    );
+}
+
+.archivedHeader {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.taskNumber {
+    flex: 0 0 auto;
+}
+
+.archivedName {
+    flex: 1;
+    line-height: 1.5;
+    white-space: normal;
+    word-break: break-word;
+    font-size: 14px;
+    margin: 0;
+}
+
+.noAssignee {
+    flex: 0 0 auto;
+}
+
+.archivedFooter {
+    display: none;
+}
+
+/* Desktop: todo en una línea */
+@media (min-width: 768px) {
+    .archivedCard {
+        padding: 10px 18px;
+    }
+
+    .archivedHeader {
+        flex-wrap: nowrap;
+        gap: 12px;
+    }
+
+    .archivedName {
+        flex: 1;
+    }
+
+    .archivedFooter {
+        display: none;
+    }
+}
+
+/* Mobile: vuelve a ser compacto */
+@media (max-width: 767px) {
+    .archivedCard {
+        padding: 10px 12px;
+    }
+
+    .archivedHeader {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .archivedName {
+        font-size: 13px;
+        flex: 0 0 calc(100% - 48px);
+        order: 3;
+    }
+
+    .noAssignee {
+        font-size: 12px;
+    }
+}
