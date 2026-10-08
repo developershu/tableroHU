@@ -18,7 +18,6 @@ import {
   Grid,
   Group,
   MultiSelect,
-  Select,
   PasswordInput,
   Text,
   TextInput,
@@ -30,6 +29,15 @@ const UserEdit = () => {
   const { getDropdownValues: getAreaDropdownValues } = useAreas();
   const { getDropdownValues } = useRoles();
 
+  const areaOptions = getAreaDropdownValues();
+  const isSuperAdmin = auth.user.is_super_admin;
+  const manageableAreaIds = areaOptions.map(a => a.value);
+  // Áreas del usuario que quien edita no administra: se muestran como info y el backend las conserva
+  const foreignAreas = isSuperAdmin
+    ? []
+    : (item.areas ?? []).filter(a => !manageableAreaIds.includes(String(a.id)));
+  const lockAreas = !isSuperAdmin && areaOptions.length <= 1;
+
   const [form, submit, updateValue] = useForm('post', route('users.update', item.id), {
     _method: 'put',
     avatar: null,
@@ -40,7 +48,9 @@ const UserEdit = () => {
     password: '',
     password_confirmation: '',
     roles: item.roles,
-    area_id: String(item.area_id ?? ''),
+    area_ids: (item.area_ids ?? [])
+      .map(String)
+      .filter(id => isSuperAdmin || manageableAreaIds.includes(id)),
   });
 
   return (
@@ -147,16 +157,22 @@ const UserEdit = () => {
             error={form.errors.roles}
           />
 
-          <Select
-            label='Área'
-            placeholder='Seleccionar área'
+          <MultiSelect
+            label='Áreas'
+            placeholder='Seleccionar áreas'
             required
             mt='md'
-            value={form.data.area_id}
-            onChange={value => updateValue('area_id', value)}
-            data={getAreaDropdownValues()}
-            disabled={!auth.user.is_super_admin} 
-            error={form.errors.area_id}
+            searchable
+            value={form.data.area_ids}
+            onChange={values => updateValue('area_ids', values)}
+            data={areaOptions}
+            disabled={lockAreas}
+            description={
+              foreignAreas.length
+                ? `También pertenece a: ${foreignAreas.map(a => a.name).join(', ')} (no se modifican)`
+                : undefined
+            }
+            error={form.errors.area_ids || form.errors['area_ids.0']}
           />
 
           <TextInput

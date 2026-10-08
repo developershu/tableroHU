@@ -31,8 +31,8 @@ class AreaController extends Controller
             'items' => AreaResource::collection(
                 Area::searchByQueryString()
                     ->sortByQueryString()
-                    // Admin de área solo ve su propio área; superadmin ve todas
-                    ->when(! $authUser->isSuperAdmin() && $authUser->area_id, fn ($q) => $q->where('id', $authUser->area_id))
+                    // Admin de área solo ve sus propias áreas; superadmin ve todas
+                    ->when(! $authUser->isSuperAdmin() && ! empty($authUser->areaIds()), fn ($q) => $q->whereIn('id', $authUser->areaIds()))
                     ->when($request->has('archived'), fn ($query) => $query->onlyArchived())
                     ->paginate(12)
             ),

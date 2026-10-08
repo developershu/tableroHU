@@ -49,7 +49,31 @@ class UpdateUserRequest extends FormRequest
                 },
             ],
             'avatar' => [File::image(), 'nullable'],
-            'area_id' => 'required|exists:areas,id',
+            'area_ids' => ['required', 'array', 'min:1'],
+            'area_ids.*' => [
+                'integer',
+                'distinct',
+                'exists:areas,id',
+                function ($attribute, $value, $fail) {
+                    $authUser = auth()->user();
+                    if ($authUser->isSuperAdmin()) {
+                        return;
+                    }
+
+                    // Un admin de área solo puede asignar áreas que él mismo tiene
+                    if (! in_array((int) $value, $authUser->areaIds(), true)) {
+                        $fail('No tenés permisos para asignar esa área.');
+                    }
+                },
+            ],
+        ];
+    }
+
+    public function attributes(): array
+    {
+        return [
+            'area_ids' => 'áreas',
+            'area_ids.*' => 'área',
         ];
     }
 }

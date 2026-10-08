@@ -18,9 +18,9 @@ class DropdownValuesController extends Controller
         $dropdowns = collect();
 
         $dropdowns->when($request->has('users'), function (Collection $collection) use ($authUser) {
-            $areaId = $authUser->isSuperAdmin() ? null : $authUser->area_id;
+            $areaIds = $authUser->isSuperAdmin() ? null : $authUser->areaIds();
 
-            return $collection->put('users', User::userDropdownValues($areaId));
+            return $collection->put('users', User::userDropdownValues($areaIds));
         });
 
         $dropdowns->when($request->has('mentionProjectUsers'), function (Collection $collection) use ($request) {

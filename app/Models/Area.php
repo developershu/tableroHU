@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Concerns\HasArchivedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Lacodix\LaravelModelFilter\Traits\IsSearchable;
 use Lacodix\LaravelModelFilter\Traits\IsSortable;
@@ -41,9 +42,12 @@ class Area extends Model implements AuditableContract
         return $this->hasMany(Project::class);
     }
 
-    public function users(): HasMany
+    /**
+     * Usuarios que pertenecen al área (tabla pivote area_user).
+     */
+    public function users(): BelongsToMany
     {
-        return $this->hasMany(User::class);
+        return $this->belongsToMany(User::class)->withTimestamps();
     }
 
     /**

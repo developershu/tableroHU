@@ -28,9 +28,8 @@ const UsersIndex = () => {
     { label: 'Rol', sortable: false },
     { label: 'Email', column: 'email' },
     {
-      label: 'Área',
-      column: 'area_id',
-      sortable: true,
+      label: 'Áreas',
+      sortable: false,
       visible: isSuperAdmin,
     },
     {

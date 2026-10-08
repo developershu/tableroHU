@@ -20,11 +20,13 @@ import {
 const ProjectCreate = ({ dropdowns: { areas, users } }) => {
   const { auth } = usePage().props;
   const isSuperAdmin = auth.user.is_super_admin;
+  // Si no es superadmin y tiene una sola área, se preselecciona y se bloquea (como antes)
+  const lockArea = !isSuperAdmin && areas.length <= 1;
 
   const [form, submit, updateValue] = useForm('post', route('projects.store'), {
     name: '',
     description: '',
-    area_id: isSuperAdmin ? '' : String(auth.user.area_id ?? ''),
+    area_id: lockArea ? (areas[0]?.value ?? '') : '',
     users: [],
   });
 
@@ -87,7 +89,7 @@ const ProjectCreate = ({ dropdowns: { areas, users } }) => {
             value={form.data.area_id}
             onChange={value => updateValue('area_id', value)}
             data={areas}
-            disabled={!isSuperAdmin}
+            disabled={lockArea}
             error={form.errors.area_id}
           />
 

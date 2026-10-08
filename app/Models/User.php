@@ -66,9 +66,21 @@ class User extends Authenticatable implements AuditableContract, CanResetPasswor
 
     // ─── Relaciones ───────────────────────────────────────────────────────────
 
+    /**
+     * Área "principal" (columna users.area_id).
+     * Se mantiene por compatibilidad; el acceso real se decide con areas().
+     */
     public function area(): BelongsTo
     {
         return $this->belongsTo(Area::class);
+    }
+
+    /**
+     * Todas las áreas a las que pertenece el usuario (tabla pivote area_user).
+     */
+    public function areas(): BelongsToMany
+    {
+        return $this->belongsToMany(Area::class)->withTimestamps();
     }
 
     public function projects(): BelongsToMany
@@ -113,7 +125,61 @@ class User extends Authenticatable implements AuditableContract, CanResetPasswor
             return true;
         }
 
-        return $this->area_id === $areaId;
+        return $areaId !== null && in_array($areaId, $this->areaIds(), true);
+    }
+
+    // ─── Áreas ────────────────────────────────────────────────────────────────
+
+    /** Cache por instancia: se consulta muchas veces por request en las policies. */
+    protected ?array $cachedAreaIds = null;
+
+    /**
+     * IDs (int) de todas las áreas del usuario.
+     *
+     * @return int[]
+     */
+    public function areaIds(): array
+    {
+        if ($this->cachedAreaIds !== null) {
+            return $this->cachedAreaIds;
+        }
+
+        $ids = $this->relationLoaded('areas')
+            ? $this->areas->pluck('id')
+            : $this->areas()->pluck('areas.id');
+
+        return $this->cachedAreaIds = $ids->map(fn ($id) => (int) $id)->unique()->values()->all();
+    }
+
+    /**
+     * True si ambos usuarios comparten al menos un área.
+     */
+    public function sharesAreaWith(User $other): bool
+    {
+        return ! empty(array_intersect($this->areaIds(), $other->areaIds()));
+    }
+
+    /**
+     * Reemplaza las áreas del usuario y mantiene users.area_id (área principal)
+     * apuntando a una de ellas, para compatibilidad con el código existente.
+     *
+     * @param  array<int|string>  $areaIds
+     */
+    public function syncAreas(array $areaIds): void
+    {
+        $areaIds = collect($areaIds)->map(fn ($id) => (int) $id)->filter()->unique()->values()->all();
+
+        $this->areas()->sync($areaIds);
+
+        $current = $this->area_id === null ? null : (int) $this->area_id;
+        $primary = in_array($current, $areaIds, true) ? $current : ($areaIds[0] ?? null);
+
+        if ($current !== $primary) {
+            $this->update(['area_id' => $primary]);
+        }
+
+        $this->cachedAreaIds = null;
+        $this->unsetRelation('areas');
     }
 
     // ─── Acceso a proyectos ───────────────────────────────────────────────────
@@ -129,12 +195,16 @@ class User extends Authenticatable implements AuditableContract, CanResetPasswor
 
     /**
      * Lista de usuarios para dropdowns.
-     * El superadmin ve todos; los demás solo ven usuarios de su área.
+     * El superadmin ve todos (null); los demás solo ven usuarios de sus áreas.
+     *
+     * @param  int|int[]|null  $areaIds
      */
-    public static function userDropdownValues(?int $areaId = null): array
+    public static function userDropdownValues(int|array|null $areaIds = null): array
     {
+        $areaIds = $areaIds === null ? null : (array) $areaIds;
+
         return self::orderBy('name')
-            ->when($areaId !== null, fn ($q) => $q->where('area_id', $areaId))
+            ->when($areaIds !== null, fn ($q) => $q->whereHas('areas', fn ($a) => $a->whereIn('areas.id', $areaIds)))
             ->get(['id', 'name'])
             ->map(fn ($i) => ['value' => (string) $i->id, 'label' => $i->name])
             ->toArray();

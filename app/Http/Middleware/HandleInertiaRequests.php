@@ -55,6 +55,7 @@ class HandleInertiaRequests extends Middleware
                         'roles' => $user->getRoleNames(),
                         'permissions' => $user->getAllPermissions()->pluck('name'),
                         'area_id' => $user->area_id,
+                        'area_ids' => $user->areaIds(),
                         'is_super_admin' => $user->isSuperAdmin(),
                     ];
                 },
@@ -70,9 +71,9 @@ class HandleInertiaRequests extends Middleware
                     if ($user->isSuperAdmin()) {
                         return Area::orderBy('name')->get(['id', 'name'])->toArray();
                     }
-                    // Admin de área: solo ve la suya
-                    if ($user->area_id) {
-                        return Area::where('id', $user->area_id)->get(['id', 'name'])->toArray();
+                    // Resto: solo ve las suyas
+                    if (! empty($user->areaIds())) {
+                        return Area::whereIn('id', $user->areaIds())->orderBy('name')->get(['id', 'name'])->toArray();
                     }
 
                     return [];

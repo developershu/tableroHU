@@ -29,8 +29,12 @@ class UserController extends Controller
             'items' => UserResource::collection(
                 User::searchByQueryString()
                     ->sortByQueryString()
-                    ->with(['roles:id,name', 'area:id,name'])
-                    ->when(! $authUser->isSuperAdmin(), fn ($q) => $q->where('area_id', $authUser->area_id))
+                    ->with(['roles:id,name', 'areas:id,name'])
+                    // Admin de área: usuarios que tengan al menos una de sus áreas
+                    ->when(! $authUser->isSuperAdmin(), fn ($q) => $q->whereHas(
+                        'areas',
+                        fn ($a) => $a->whereIn('areas.id', $authUser->areaIds())
+                    ))
                     ->when($request->has('archived'), fn ($query) => $query->onlyArchived())
                     ->paginate(12)
             ),
@@ -51,7 +55,7 @@ class UserController extends Controller
 
     public function edit(User $user)
     {
-        return Inertia::render('Users/Edit', ['item' => new UserResource($user)]);
+        return Inertia::render('Users/Edit', ['item' => new UserResource($user->load('areas:id,name'))]);
     }
 
     public function update(User $user, UpdateUserRequest $request)

@@ -26,7 +26,22 @@ class StoreProjectRequest extends FormRequest
         return [
             'name' => ['required', 'string', Rule::unique('projects', 'name')],
             'description' => 'string|nullable',
-            'area_id' => 'required|integer|exists:areas,id',
+            'area_id' => [
+                'required',
+                'integer',
+                'exists:areas,id',
+                function ($attribute, $value, $fail) {
+                    $authUser = auth()->user();
+                    if ($authUser->isSuperAdmin()) {
+                        return;
+                    }
+
+                    // Solo se pueden crear/mover proyectos a áreas a las que pertenece el usuario
+                    if (! in_array((int) $value, $authUser->areaIds(), true)) {
+                        $fail('No tenés permisos para usar esa área.');
+                    }
+                },
+            ],
             'users' => 'array',
         ];
     }

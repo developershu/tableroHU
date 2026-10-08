@@ -17,7 +17,6 @@ import {
   Grid,
   Group,
   MultiSelect,
-  Select,
   PasswordInput,
   Text,
   TextInput,
@@ -29,6 +28,11 @@ const UserCreate = () => {
   const { getDropdownValues: getAreaDropdownValues } = useAreas();
   const { getDropdownValues } = useRoles();
 
+  const areaOptions = getAreaDropdownValues();
+  const isSuperAdmin = auth.user.is_super_admin;
+  // Si no es superadmin y tiene una sola área, se preselecciona y se bloquea (como antes)
+  const lockAreas = !isSuperAdmin && areaOptions.length <= 1;
+
   const [form, submit, updateValue] = useForm('post', route('users.store'), {
     avatar: null,
     job_title: '',
@@ -38,7 +42,7 @@ const UserCreate = () => {
     password: '',
     password_confirmation: '',
     roles: [],
-    area_id: auth.user.is_super_admin ? '' : String(auth.user.area_id ?? ''), // pre-cargado si es admin de área
+    area_ids: lockAreas ? areaOptions.map(a => a.value) : [], // pre-cargado si es admin de una sola área
   });
 
   return (
@@ -143,16 +147,17 @@ const UserCreate = () => {
             error={form.errors.roles}
           />
 
-          <Select
-            label='Área'
-            placeholder='Seleccionar área'
+          <MultiSelect
+            label='Áreas'
+            placeholder='Seleccionar áreas'
             required
             mt='md'
-            value={form.data.area_id}
-            onChange={value => updateValue('area_id', value)}
-            data={getAreaDropdownValues()}
-            disabled={!auth.user.is_super_admin}
-            error={form.errors.area_id}
+            searchable
+            value={form.data.area_ids}
+            onChange={values => updateValue('area_ids', values)}
+            data={areaOptions}
+            disabled={lockAreas}
+            error={form.errors.area_ids || form.errors['area_ids.0']}
           />
 
           <TextInput

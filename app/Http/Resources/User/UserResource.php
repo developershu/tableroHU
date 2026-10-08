@@ -24,6 +24,8 @@ class UserResource extends JsonResource
             'roles' => $this->roles->map->only('name')->flatten()->toArray(),
             'area_id' => $this->area_id,
             'area' => $this->whenLoaded('area', fn () => ['id' => $this->area->id, 'name' => $this->area->name]),
+            'area_ids' => $this->whenLoaded('areas', fn () => $this->areas->pluck('id')->map(fn ($id) => (int) $id)->values()),
+            'areas' => $this->whenLoaded('areas', fn () => $this->areas->map(fn ($a) => ['id' => $a->id, 'name' => $a->name])->values()),
             'can_force_delete' => $this->archived_at ? $request->user()?->can('forceDelete', $this->resource) : null,
         ];
     }

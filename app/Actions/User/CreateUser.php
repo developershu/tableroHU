@@ -19,8 +19,10 @@ class CreateUser
                 'phone' => $data['phone'],
                 'email' => $data['email'],
                 'password' => Hash::make($data['password']),
-                'area_id' => $data['area_id'],
+                'area_id' => $data['area_ids'][0] ?? null,
             ]);
+
+            $user->syncAreas($data['area_ids']);
 
             $user->update(['avatar' => UserService::storeOrFetchAvatar($user, $data['avatar'])]);
 

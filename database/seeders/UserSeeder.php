@@ -37,18 +37,22 @@ class UserSeeder extends Seeder
         );
 
         foreach ($rolesExceptSuperadmin as $role) {
-            User::factory()
+            $user = User::factory()
                 ->create([
                     'email' => "$role@mail.com",
                     'job_title' => $this->getJobTitle($role),
                     'area_id' => $area->id,
-                ])
-                ->assignRole($role);
+                ]);
+            $user->assignRole($role);
+            $user->areas()->attach($area->id);
         }
 
         User::factory(20)
             ->create(['area_id' => $area->id])
-            ->each(fn (User $user) => $user->assignRole($this->jobTitleToRole[$user->job_title]));
+            ->each(function (User $user) use ($area) {
+                $user->assignRole($this->jobTitleToRole[$user->job_title]);
+                $user->areas()->attach($area->id);
+            });
     }
 
     private function getJobTitle(string $role): string

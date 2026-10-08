@@ -90,9 +90,9 @@ class PermissionService
             return self::$usersWithAccessToProject[$project->id];
         }
 
-        // Los admins del MISMO área tienen acceso automático al proyecto
+        // Los admins que tengan el área del proyecto entre SUS áreas tienen acceso automático
         $areaAdmins = User::role('admin')
-            ->where('area_id', $project->area_id)
+            ->whereHas('areas', fn ($q) => $q->where('areas.id', $project->area_id))
             ->with('roles:id,name')
             ->get(['id', 'name', 'avatar'])
             ->map(fn ($u) => [...$u->toArray(), 'reason' => 'area admin']);
@@ -136,9 +136,9 @@ class PermissionService
             return self::$projectsThatUserCanAccess = Project::withArchived()->get();
         }
 
-        // Admin de área ve todos los proyectos de su área
-        if (self::isAreaAdmin($user) && $user->area_id) {
-            return self::$projectsThatUserCanAccess = Project::where('area_id', $user->area_id)->get();
+        // Admin de área ve todos los proyectos de todas sus áreas
+        if (self::isAreaAdmin($user) && ! empty($user->areaIds())) {
+            return self::$projectsThatUserCanAccess = Project::whereIn('area_id', $user->areaIds())->get();
         }
 
         return self::$projectsThatUserCanAccess = collect($user->projects->toArray())

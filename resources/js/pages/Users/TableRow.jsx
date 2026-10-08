@@ -74,14 +74,19 @@ export default function TableRow({ item, selectable = false, selected = false, o
       {/* Columna área: solo visible para superadmin */}
       {isSuperAdmin && (
         <Table.Td>
-          {item.area ? (
-            <Badge
-              variant='light'
-              color='gray'
-              radius='sm'
-            >
-              {item.area.name}
-            </Badge>
+          {item.areas?.length ? (
+            <Group gap={4}>
+              {item.areas.map(area => (
+                <Badge
+                  key={area.id}
+                  variant='light'
+                  color='gray'
+                  radius='sm'
+                >
+                  {area.name}
+                </Badge>
+              ))}
+            </Group>
           ) : (
             <Text
               fz='xs'

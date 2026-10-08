@@ -32,12 +32,12 @@ class ProjectController extends Controller
                     ->when($authUser->isSuperAdmin(), fn ($q) => $q) // sin filtro
                     ->when(
                         $authUser->isAdmin() && ! $authUser->isSuperAdmin(),
-                        fn ($q) => $q->where('area_id', $authUser->area_id)
+                        fn ($q) => $q->whereIn('area_id', $authUser->areaIds())
                     )
                     ->when(
                         $authUser->isNotAdmin(),
                         fn ($q) => $q->whereHas('users', fn ($q2) => $q2->where('id', $authUser->id))
-                            ->where('area_id', $authUser->area_id)
+                            ->whereIn('area_id', $authUser->areaIds())
                     )
                     ->when($request->has('archived'), fn ($query) => $query->onlyArchived())
                     ->with(['area:id,name', 'users:id,name,avatar'])
@@ -61,14 +61,14 @@ class ProjectController extends Controller
 
         return Inertia::render('Projects/Create', [
             'dropdowns' => [
-                // Superadmin ve todas las áreas; admin solo ve la suya
+                // Superadmin ve todas las áreas; el resto solo las suyas
                 'areas' => $authUser->isSuperAdmin()
                     ? Area::dropdownValues()
-                    : Area::where('id', $authUser->area_id)->get(['id', 'name'])
+                    : Area::whereIn('id', $authUser->areaIds())->orderBy('name')->get(['id', 'name'])
                         ->map(fn ($i) => ['value' => (string) $i->id, 'label' => $i->name])
                         ->toArray(),
-                // Solo usuarios del mismo área
-                'users' => User::userDropdownValues($authUser->isSuperAdmin() ? null : $authUser->area_id),
+                // Solo usuarios de sus mismas áreas
+                'users' => User::userDropdownValues($authUser->isSuperAdmin() ? null : $authUser->areaIds()),
             ],
         ]);
     }
@@ -85,10 +85,10 @@ class ProjectController extends Controller
             'dropdowns' => [
                 'areas' => $authUser->isSuperAdmin()
                     ? Area::dropdownValues()
-                    : Area::where('id', $authUser->area_id)->get(['id', 'name'])
+                    : Area::whereIn('id', $authUser->areaIds())->orderBy('name')->get(['id', 'name'])
                         ->map(fn ($i) => ['value' => (string) $i->id, 'label' => $i->name])
                         ->toArray(),
-                'users' => User::userDropdownValues($authUser->isSuperAdmin() ? null : $authUser->area_id),
+                'users' => User::userDropdownValues($authUser->isSuperAdmin() ? null : $authUser->areaIds()),
             ],
         ]);
     }

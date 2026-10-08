@@ -17,7 +17,7 @@ class UserPolicy
     }
 
     /**
-     * Solo puede editar usuarios de su misma área (o el superadmin).
+     * Solo puede editar usuarios que compartan al menos un área (o el superadmin).
      */
     public function update(User $user, User $model): bool
     {
@@ -30,12 +30,12 @@ class UserPolicy
             return true;
         }
 
-        // El admin de área solo puede editar usuarios de su área
-        return $user->area_id === $model->area_id;
+        // El admin de área solo puede editar usuarios con los que comparte al menos un área
+        return $user->sharesAreaWith($model);
     }
 
     /**
-     * Solo puede archivar usuarios de su misma área (o el superadmin).
+     * Solo puede archivar usuarios que compartan al menos un área (o el superadmin).
      */
     public function delete(User $user, User $model): bool
     {
@@ -47,11 +47,11 @@ class UserPolicy
             return true;
         }
 
-        return $user->area_id === $model->area_id;
+        return $user->sharesAreaWith($model);
     }
 
     /**
-     * Solo puede restaurar usuarios de su misma área (o el superadmin).
+     * Solo puede restaurar usuarios que compartan al menos un área (o el superadmin).
      */
     public function restore(User $user, User $model): bool
     {
@@ -67,11 +67,11 @@ class UserPolicy
             return true;
         }
 
-        return $user->area_id === $model->area_id;
+        return $user->sharesAreaWith($model);
     }
 
     /**
-     * Solo puede borrar permanentemente usuarios de su misma área (o el superadmin).
+     * Solo puede borrar permanentemente usuarios que compartan al menos un área (o el superadmin).
      * Nunca se puede borrar el propio usuario logueado.
      */
     public function forceDelete(User $user, User $model): bool
@@ -92,6 +92,6 @@ class UserPolicy
             return true;
         }
 
-        return $user->area_id === $model->area_id;
+        return $user->sharesAreaWith($model);
     }
 }
