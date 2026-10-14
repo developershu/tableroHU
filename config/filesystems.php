@@ -70,7 +70,7 @@ return [
         'external' => [
             'driver' => 'local',
             'root' => '/tablerohu/imagenes',
-            'url' => env('APP_URL') . '/imagenes',
+            'url' => env('APP_URL').'/imagenes',
             'visibility' => 'public',
             'directory_visibility' => 'public',
             'throw' => false,
